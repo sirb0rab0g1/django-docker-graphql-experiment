@@ -1,0 +1,40 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+bpython = "*"
+djangorestframework = "*"
+markdown = "*"
+django-filter = "*"
+django-cors-headers = "*"
+django-environ = "*"
+channels-redis = "*"
+channels = "*"
+twisted = "*"
+whitenoise = "*"
+django-annoying = "*"
+djangorestframework-jwt = "*"
+graphene-django = "*"
+"psycopg2-binary" = "*"
+pillow = "*"
+email-to = "*"
+cryptography = "*"
+celery = "*"
+redis = "*"
+requests = "*"
+"xhtml2pdf" = "*"
+colour = "*"
+fpdf = "*"
+xlwt = "*"
+openpyxl = "*"
+xlsxwriter = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.7"
+
+[pipenv]
+allow_prereleases = true

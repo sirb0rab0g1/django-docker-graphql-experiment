@@ -1,0 +1,7 @@
+.env
+*.xls
+*.xlsx
+
+/media/
+/static/
+/staticfiles/

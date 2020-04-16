@@ -1,0 +1,95 @@
+version: '3.2'
+
+volumes:
+  pgadmin:
+  postgres_graphql_best: {}
+
+services:
+  nginx:
+    build:
+      context: .
+      dockerfile: Dockerfile.nginx
+    restart: always
+    image: ${NGINX}
+    container_name: ${NGINX}
+    depends_on:
+      - api
+    env_file:
+     - ./.env
+    ports:
+      - 80:80
+
+  db:
+    restart: always
+    container_name: ${POSTGRESQL}
+    image: postgres:9.6.5-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ismellsomethingfishy
+      PGDATA: /var/lib/postgresql/data
+    volumes:
+      - postgres_graphql_best:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    restart: unless-stopped
+    command: -c fsync=off -c synchronous_commit=off -c full_page_writes=off
+
+  redis:
+    container_name: ${REDIS}
+    image: redis:latest
+    restart: always
+
+  celery:
+    build: .
+    command: celery -A api worker -l info -B
+    volumes:
+      - type: bind
+        source: .
+        target: /${API}
+    depends_on:
+      - db
+      - redis
+
+  celery-beat:
+    build: .
+    command: celery -A api beat -l info
+    volumes:
+      - type: bind
+        source: .
+        target: /${API}
+    depends_on:
+      - db
+      - redis
+
+  api:
+    build: .
+    image: ${API}
+    container_name: ${API}
+    volumes:
+      - type: bind
+        source: .
+        target: /${API}
+    restart: always
+    depends_on:
+      - db
+      - redis
+      - pgadmin
+    environment:
+      - IN_DOCKER=1
+    env_file:
+     - ./.env
+    ports:
+      - 8000:8000
+
+  pgadmin:
+    container_name: ${PGADMINCONTAINER}
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: kentoyfueconcillo@gmail.com
+      PGADMIN_DEFAULT_PASSWORD: ismellsomethingfishy
+    volumes:
+       - pgadmin:/root/.pgadmin
+    ports:
+      - "5050:80"
+    restart: unless-stopped
+    
