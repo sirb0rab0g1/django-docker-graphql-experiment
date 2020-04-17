@@ -29,6 +29,7 @@ class GraphEventsType(DjangoObjectType):
     class Meta:
         model = Events
         filter_fields = {
+            'id': ['exact'],
             'title': ['exact', 'icontains', 'istartswith'],
         }
         interfaces = (relay.Node, )
@@ -57,10 +58,9 @@ class EventMutation(graphene.Mutation):
         return EventMutation(event=event)
 
 class Mutation(graphene.ObjectType):
-    crud_event = EventMutation.Field()
+    crudEvent = EventMutation.Field()
 
 class Query(graphene.ObjectType):
-    # get_user = graphene.Field(UserType, id=graphene.Int())
     all_events = DjangoFilterConnectionField(GraphEventsType)
 
     def resolve_all_events(self, info, **kwargs):
