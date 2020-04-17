@@ -6,6 +6,9 @@ from .models import (
     BasicInformation,
     Events
 )
+from .serializers import (
+    EventsSerializer
+)
 
 from django.contrib.auth.models import User
 
@@ -15,29 +18,57 @@ from graphene import relay, ObjectType
 from graphene_django.filter import DjangoFilterConnectionField
 
 from core.upload_path import generate_soa_report, generate_excell_from_filter
+from graphene_django.rest_framework.mutation import SerializerMutation
 
 '''
 NOTE: class name should not be the same as model
 '''
 
 
-class GraphEvents(DjangoObjectType):
+class GraphEventsType(DjangoObjectType):
     class Meta:
         model = Events
-        # Allow for some more advanced filtering here
         filter_fields = {
             'title': ['exact', 'icontains', 'istartswith'],
         }
         interfaces = (relay.Node, )
 
 
+class EventsInput(graphene.InputObjectType):
+    title = graphene.String()
+    description = graphene.String()
+    link = graphene.String()
+
+
+class EventsObject(graphene.ObjectType):
+    title = graphene.String()
+    description = graphene.String()
+    link = graphene.String()
+
+
+class EventMutation(graphene.Mutation):
+    class Arguments:
+        event_data = EventsInput()
+
+    event = graphene.Field(GraphEventsType)
+    @staticmethod
+    def mutate(self, info, event_data=None):
+        event = Events.objects.create(**event_data) # kung same params sa model pwede ra mag **
+        return EventMutation(event=event)
+
+class Mutation(graphene.ObjectType):
+    crud_event = EventMutation.Field()
 
 class Query(graphene.ObjectType):
     # get_user = graphene.Field(UserType, id=graphene.Int())
-    all_events = DjangoFilterConnectionField(GraphEvents)
+    all_events = DjangoFilterConnectionField(GraphEventsType)
+
+    def resolve_all_events(self, info, **kwargs):
+        return Events.objects.all()
 
 
-schema = graphene.Schema(query=Query, auto_camelcase=False)
+
+schema = graphene.Schema(query=Query, mutation=Mutation, auto_camelcase=False)
 
 """
 NOTE: TRY THIS INTO http://localhost:8000/api/admin/graphiql URL
