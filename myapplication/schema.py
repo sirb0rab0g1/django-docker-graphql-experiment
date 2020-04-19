@@ -49,17 +49,6 @@ class EventsObject(graphene.ObjectType):
     description = graphene.String()
     link = graphene.String()
 
-class RemoveEvent(graphene.Mutation):
-    ok = graphene.Boolean()
-    class Arguments:
-        id = graphene.ID()
-
-    @classmethod
-    def mutate(cls, root, info, **kwargs):
-        obj = Events.objects.get(pk=kwargs["id"])
-        obj.delete()
-        return RemoveEvent(ok=True)
-
 class CreateUpdateEvent(graphene.Mutation):
     class Arguments:
         event_data = EventsInput()
@@ -67,17 +56,24 @@ class CreateUpdateEvent(graphene.Mutation):
     event = graphene.Field(GraphEventsType)
     @staticmethod
     def mutate(self, info, event_data=None):
-        if event_data.id is not None:
+        print(event_data)
+        print(len(list(event_data.keys())) == 1)
+        if event_data.id is not None and len(list(event_data.keys())) > 1:
             event_data['id'] = from_global_id(event_data.id)[1] # to retieve the unique hash from object
             event = Events(**event_data)
             event.save()
+        elif event_data.id is not None and len(list(event_data.keys())) == 1:
+            print('delete must here')
+            event_data['id'] = from_global_id(event_data.id)[1] # to retieve the unique hash from object
+            event = Events.objects.get(pk=event_data['id'])
+            event.delete()
         else:
             event = Events.objects.create(**event_data) # kung same params sa model pwede ra mag **
         return CreateUpdateEvent(event=event)
 
 class Mutation(graphene.ObjectType):
     CreateUpdateEvent = CreateUpdateEvent.Field()
-    removeEvent = RemoveEvent.Field()
+    # removeEvent = RemoveEvent.Field()
 
 class Query(graphene.ObjectType):
     all_events = DjangoFilterConnectionField(GraphEventsType)
