@@ -19,6 +19,7 @@ from graphene_django.filter import DjangoFilterConnectionField
 
 from core.upload_path import generate_soa_report, generate_excell_from_filter
 from graphene_django.rest_framework.mutation import SerializerMutation
+from graphql_relay import from_global_id
 
 '''
 NOTE: class name should not be the same as model
@@ -36,29 +37,47 @@ class GraphEventsType(DjangoObjectType):
 
 
 class EventsInput(graphene.InputObjectType):
+    id = graphene.ID()
     title = graphene.String()
     description = graphene.String()
     link = graphene.String()
 
 
 class EventsObject(graphene.ObjectType):
+    id = graphene.ID()
     title = graphene.String()
     description = graphene.String()
     link = graphene.String()
 
+class RemoveEvent(graphene.Mutation):
+    ok = graphene.Boolean()
+    class Arguments:
+        id = graphene.ID()
 
-class EventMutation(graphene.Mutation):
+    @classmethod
+    def mutate(cls, root, info, **kwargs):
+        obj = Events.objects.get(pk=kwargs["id"])
+        obj.delete()
+        return RemoveEvent(ok=True)
+
+class CreateUpdateEvent(graphene.Mutation):
     class Arguments:
         event_data = EventsInput()
 
     event = graphene.Field(GraphEventsType)
     @staticmethod
     def mutate(self, info, event_data=None):
-        event = Events.objects.create(**event_data) # kung same params sa model pwede ra mag **
-        return EventMutation(event=event)
+        if event_data.id is not None:
+            event_data['id'] = from_global_id(event_data.id)[1] # to retieve the unique hash from object
+            event = Events(**event_data)
+            event.save()
+        else:
+            event = Events.objects.create(**event_data) # kung same params sa model pwede ra mag **
+        return CreateUpdateEvent(event=event)
 
 class Mutation(graphene.ObjectType):
-    crudEvent = EventMutation.Field()
+    CreateUpdateEvent = CreateUpdateEvent.Field()
+    removeEvent = RemoveEvent.Field()
 
 class Query(graphene.ObjectType):
     all_events = DjangoFilterConnectionField(GraphEventsType)
