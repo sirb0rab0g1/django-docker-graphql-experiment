@@ -103,5 +103,4 @@ class Query(graphene.ObjectType):
         return qs
 
 
-
 schema = graphene.Schema(query=Query, mutation=Mutation, auto_camelcase=False)
