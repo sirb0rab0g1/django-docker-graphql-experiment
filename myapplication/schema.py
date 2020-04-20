@@ -98,7 +98,14 @@ class Query(graphene.ObjectType):
     )
 
     def resolve_all_events(self, info, first=None, skip=None, **kwargs):
-        return Events.objects.all()
+        qs = Events.objects.all()
+        if skip:
+            qs = qs[skip:]
+
+        if first:
+            qs = qs[:first]
+
+        return qs
 
 
 
