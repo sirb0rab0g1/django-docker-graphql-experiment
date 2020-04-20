@@ -36,7 +36,6 @@ class GraphEventsType(DjangoObjectType):
         interfaces = (relay.Node, )
 
     extra_field = graphene.String()
-
     # just add extra_field in query
     '''
     edges {
@@ -71,24 +70,20 @@ class CreateUpdateEvent(graphene.Mutation):
     event = graphene.Field(GraphEventsType)
     @staticmethod
     def mutate(self, info, event_data=None):
-        print(event_data)
-        print(len(list(event_data.keys())) == 1)
         if event_data.id is not None and len(list(event_data.keys())) > 1:
-            event_data['id'] = from_global_id(event_data.id)[1] # to retieve the unique hash from object
+            event_data['id'] = from_global_id(event_data.id)[1]
             event = Events(**event_data)
             event.save()
         elif event_data.id is not None and len(list(event_data.keys())) == 1:
-            print('delete must here')
-            event_data['id'] = from_global_id(event_data.id)[1] # to retieve the unique hash from object
+            event_data['id'] = from_global_id(event_data.id)[1]
             event = Events.objects.get(pk=event_data['id'])
             event.delete()
         else:
-            event = Events.objects.create(**event_data) # kung same params sa model pwede ra mag **
+            event = Events.objects.create(**event_data)
         return CreateUpdateEvent(event=event)
 
 class Mutation(graphene.ObjectType):
     CreateUpdateEvent = CreateUpdateEvent.Field()
-    # removeEvent = RemoveEvent.Field()
 
 class Query(graphene.ObjectType):
     all_events = DjangoFilterConnectionField(
@@ -110,40 +105,3 @@ class Query(graphene.ObjectType):
 
 
 schema = graphene.Schema(query=Query, mutation=Mutation, auto_camelcase=False)
-
-"""
-NOTE: TRY THIS INTO http://localhost:8000/api/admin/graphiql URL
-
-{
-  search_user (first_name: "pasmo123") {
-    id,
-    email,
-    first_name,
-    last_name,
-    profile {
-      role
-    }
-  }
-
-  all_events {
-    pageInfo {
-        startCursor
-        endCursor
-        hasNextPage
-        hasPreviousPage
-    },
-    edges {
-      cursor,
-      node{
-        id,
-        title
-      }
-    }
-  }
-
-  search_event (first: 2, skip:0) {
-    id,
-    title
-  }
-}
-"""
