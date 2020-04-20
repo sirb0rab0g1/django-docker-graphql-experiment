@@ -35,6 +35,21 @@ class GraphEventsType(DjangoObjectType):
         }
         interfaces = (relay.Node, )
 
+    extra_field = graphene.String()
+
+    # just add extra_field in query
+    '''
+    edges {
+      node{
+        id,
+        title,
+        extra_field
+      }
+    }
+    '''
+    def resolve_extra_field(self, info):
+        return 'title : ' + self.title
+
 
 class EventsInput(graphene.InputObjectType):
     id = graphene.ID()
@@ -76,9 +91,13 @@ class Mutation(graphene.ObjectType):
     # removeEvent = RemoveEvent.Field()
 
 class Query(graphene.ObjectType):
-    all_events = DjangoFilterConnectionField(GraphEventsType)
+    all_events = DjangoFilterConnectionField(
+        GraphEventsType,
+        first=graphene.Int(),
+        skip=graphene.Int()
+    )
 
-    def resolve_all_events(self, info, **kwargs):
+    def resolve_all_events(self, info, first=None, skip=None, **kwargs):
         return Events.objects.all()
 
 
