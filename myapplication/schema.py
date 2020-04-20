@@ -30,7 +30,6 @@ class GraphEventsType(DjangoObjectType):
     class Meta:
         model = Events
         filter_fields = {
-            'id': ['exact'],
             'title': ['exact', 'icontains', 'istartswith'],
         }
         interfaces = (relay.Node, )
@@ -88,12 +87,17 @@ class Mutation(graphene.ObjectType):
 class Query(graphene.ObjectType):
     all_events = DjangoFilterConnectionField(
         GraphEventsType,
+        getid=graphene.ID(),
         first=graphene.Int(),
         skip=graphene.Int()
     )
 
-    def resolve_all_events(self, info, first=None, skip=None, **kwargs):
-        qs = Events.objects.all()
+    def resolve_all_events(self, info, getid=None, first=None, skip=None, **kwargs):
+        qs = Events.objects.all().order_by('-creation_date')
+
+        if getid:
+            qs = qs.filter(id=from_global_id(getid)[1]).order_by('-creation_date')
+
         if skip:
             qs = qs[skip:]
 
