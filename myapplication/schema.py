@@ -20,7 +20,7 @@ from graphene_django.filter import DjangoFilterConnectionField
 from core.upload_path import generate_soa_report, generate_excell_from_filter
 from graphene_django.rest_framework.mutation import SerializerMutation
 from graphql_relay import from_global_id
-
+from core.extras import validate_fields
 '''
 NOTE: class name should not be the same as model
 '''
@@ -29,22 +29,11 @@ NOTE: class name should not be the same as model
 class GraphEventsType(DjangoObjectType):
     class Meta:
         model = Events
-        filter_fields = {
-            'title': ['exact', 'icontains', 'istartswith'],
-        }
+        filter_fields = {}
         interfaces = (relay.Node, )
 
     extra_field = graphene.String()
     # just add extra_field in query
-    '''
-    edges {
-      node{
-        id,
-        title,
-        extra_field
-      }
-    }
-    '''
     def resolve_extra_field(self, info):
         return 'title : ' + self.title
 
@@ -67,7 +56,7 @@ class CreateUpdateEvent(graphene.Mutation):
         event_data = EventsInput()
 
     event = graphene.Field(GraphEventsType)
-    @staticmethod
+
     def mutate(self, info, event_data=None):
         if event_data.id is not None and len(list(event_data.keys())) > 1:
             event_data['id'] = from_global_id(event_data.id)[1]
@@ -78,6 +67,7 @@ class CreateUpdateEvent(graphene.Mutation):
             event = Events.objects.get(pk=event_data['id'])
             event.delete()
         else:
+            validate_fields(event_data)
             event = Events.objects.create(**event_data)
         return CreateUpdateEvent(event=event)
 
@@ -88,15 +78,19 @@ class Query(graphene.ObjectType):
     all_events = DjangoFilterConnectionField(
         GraphEventsType,
         getid=graphene.ID(),
+        title=graphene.String(),
         first=graphene.Int(),
         skip=graphene.Int()
     )
 
-    def resolve_all_events(self, info, getid=None, first=None, skip=None, **kwargs):
+    def resolve_all_events(self, info, title=None, getid=None, first=None, skip=None, **kwargs):
         qs = Events.objects.all().order_by('-creation_date')
 
         if getid:
             qs = qs.filter(id=from_global_id(getid)[1]).order_by('-creation_date')
+
+        if title:
+            qs = qs.filter(title__icontains=title).order_by('-creation_date')
 
         if skip:
             qs = qs[skip:]
