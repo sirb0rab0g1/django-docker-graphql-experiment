@@ -35,7 +35,8 @@ class GraphEventsType(DjangoObjectType):
     extra_field = graphene.String()
     # just add extra_field in query
     def resolve_extra_field(self, info):
-        return 'title : ' + self.title
+        if self.title is not None:
+            return 'title : ' + self.title
 
 
 class EventsInput(graphene.InputObjectType):
@@ -84,7 +85,7 @@ class Query(graphene.ObjectType):
     )
 
     def resolve_all_events(self, info, title=None, getid=None, first=None, skip=None, **kwargs):
-        qs = Events.objects.all().order_by('-creation_date')
+        qs = Events.objects.order_by('-creation_date')
 
         if getid:
             qs = qs.filter(id=from_global_id(getid)[1]).order_by('-creation_date')
