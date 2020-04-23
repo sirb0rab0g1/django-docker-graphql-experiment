@@ -24,7 +24,7 @@ class BasicInformation(models.Model):
 class Events(models.Model):
     user = models.ForeignKey(User, related_name='events', on_delete=models.CASCADE, blank=True, null=True)
     image = models.ImageField(upload_to=get_events_upload_path, blank=True, null=True)
-    title = models.CharField(max_length=50, blank=True, null=True)
-    description = models.CharField(max_length=400)
-    link = models.CharField(max_length=400, blank=True, null=True)
+    title = models.CharField(max_length=50, blank=True, null=True, default="")
+    description = models.CharField(max_length=400, blank=True, null=True, default="")
+    link = models.CharField(max_length=400, blank=True, null=True, default="")
     creation_date = models.DateTimeField('date created', auto_now_add=True, null=True, blank=True)

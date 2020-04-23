@@ -20,7 +20,7 @@ from graphene_django.filter import DjangoFilterConnectionField
 from core.upload_path import generate_soa_report, generate_excell_from_filter
 from graphene_django.rest_framework.mutation import SerializerMutation
 from graphql_relay import from_global_id
-
+from core.extras import validate_fields
 '''
 NOTE: class name should not be the same as model
 '''
@@ -29,26 +29,14 @@ NOTE: class name should not be the same as model
 class GraphEventsType(DjangoObjectType):
     class Meta:
         model = Events
-        filter_fields = {
-            'id': ['exact'],
-            'title': ['exact', 'icontains', 'istartswith'],
-        }
+        filter_fields = {}
         interfaces = (relay.Node, )
 
     extra_field = graphene.String()
-
     # just add extra_field in query
-    '''
-    edges {
-      node{
-        id,
-        title,
-        extra_field
-      }
-    }
-    '''
     def resolve_extra_field(self, info):
-        return 'title : ' + self.title
+        if self.title is not None:
+            return 'title : ' + self.title
 
 
 class EventsInput(graphene.InputObjectType):
@@ -69,36 +57,42 @@ class CreateUpdateEvent(graphene.Mutation):
         event_data = EventsInput()
 
     event = graphene.Field(GraphEventsType)
-    @staticmethod
+
     def mutate(self, info, event_data=None):
-        print(event_data)
-        print(len(list(event_data.keys())) == 1)
         if event_data.id is not None and len(list(event_data.keys())) > 1:
-            event_data['id'] = from_global_id(event_data.id)[1] # to retieve the unique hash from object
+            event_data['id'] = from_global_id(event_data.id)[1]
             event = Events(**event_data)
             event.save()
         elif event_data.id is not None and len(list(event_data.keys())) == 1:
-            print('delete must here')
-            event_data['id'] = from_global_id(event_data.id)[1] # to retieve the unique hash from object
+            event_data['id'] = from_global_id(event_data.id)[1]
             event = Events.objects.get(pk=event_data['id'])
             event.delete()
         else:
-            event = Events.objects.create(**event_data) # kung same params sa model pwede ra mag **
+            validate_fields(event_data)
+            event = Events.objects.create(**event_data)
         return CreateUpdateEvent(event=event)
 
 class Mutation(graphene.ObjectType):
     CreateUpdateEvent = CreateUpdateEvent.Field()
-    # removeEvent = RemoveEvent.Field()
 
 class Query(graphene.ObjectType):
     all_events = DjangoFilterConnectionField(
         GraphEventsType,
+        getid=graphene.ID(),
+        title=graphene.String(),
         first=graphene.Int(),
         skip=graphene.Int()
     )
 
-    def resolve_all_events(self, info, first=None, skip=None, **kwargs):
-        qs = Events.objects.all()
+    def resolve_all_events(self, info, title=None, getid=None, first=None, skip=None, **kwargs):
+        qs = Events.objects.order_by('-creation_date')
+
+        if getid:
+            qs = qs.filter(id=from_global_id(getid)[1]).order_by('-creation_date')
+
+        if title:
+            qs = qs.filter(title__icontains=title).order_by('-creation_date')
+
         if skip:
             qs = qs[skip:]
 
@@ -108,42 +102,4 @@ class Query(graphene.ObjectType):
         return qs
 
 
-
 schema = graphene.Schema(query=Query, mutation=Mutation, auto_camelcase=False)
-
-"""
-NOTE: TRY THIS INTO http://localhost:8000/api/admin/graphiql URL
-
-{
-  search_user (first_name: "pasmo123") {
-    id,
-    email,
-    first_name,
-    last_name,
-    profile {
-      role
-    }
-  }
-
-  all_events {
-    pageInfo {
-        startCursor
-        endCursor
-        hasNextPage
-        hasPreviousPage
-    },
-    edges {
-      cursor,
-      node{
-        id,
-        title
-      }
-    }
-  }
-
-  search_event (first: 2, skip:0) {
-    id,
-    title
-  }
-}
-"""
