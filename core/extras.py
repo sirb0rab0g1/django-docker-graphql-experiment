@@ -6,7 +6,7 @@ def validate_fields(obj):
             if key is 'id':
                 pass
             else:
-                if obj[key] is None:
+                if obj[key] is None or obj[key] is "":
                     error.update({key: key.capitalize() + ' should not be empty!'})
                 else:
                     pass
