@@ -66,7 +66,7 @@ class CreateUpdateEvent(graphene.Mutation):
             event.save()
         elif event_data.id is not None and len(list(event_data.keys())) == 1:
             event_data['id'] = from_global_id(event_data.id)[1]
-            event = Events.objects.get(pk=event_data['id'])
+            event = Events.objects.get(id=event_data['id'])
             event.delete()
         else:
             validate_fields(event_data)
