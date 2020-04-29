@@ -30,11 +30,25 @@ NOTE: class name should not be the same as model
 '''
 
 
+class ExtendedConnection(graphene.Connection):
+    class Meta:
+        abstract = True
+
+    total_count = graphene.Int()
+
+    def resolve_total_count(root, info, **kwargs):
+        try:
+            return info.context.total_count
+        except AttributeError:
+            return None
+
+
 class GraphEventsType(DjangoObjectType):
     class Meta:
         model = Events
         filter_fields = {}
         interfaces = (relay.Node, )
+        connection_class = ExtendedConnection
 
     extra_field = graphene.String()
     # just add extra_field in query
@@ -59,6 +73,7 @@ class EventsObject(graphene.ObjectType):
     link = graphene.String()
     data_url = graphene.String() # holding data:image
     file_name = graphene.String() # holdile image file name
+
 
 class CreateUpdateEvent(graphene.Mutation):
     class Arguments:
@@ -109,6 +124,8 @@ class Query(graphene.ObjectType):
     def resolve_all_events(self, info, title=None, getid=None, first=None, skip=None, **kwargs):
         qs = Events.objects.order_by('-creation_date')
 
+        total_count = qs.all().count()
+
         if getid:
             qs = qs.filter(id=from_global_id(getid)[1]).order_by('-creation_date')
 
@@ -120,6 +137,8 @@ class Query(graphene.ObjectType):
 
         if first:
             qs = qs[:first]
+
+        info.context.total_count = total_count
 
         return qs
 
