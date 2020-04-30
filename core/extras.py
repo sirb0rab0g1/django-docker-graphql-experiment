@@ -3,7 +3,7 @@ def validate_fields(obj):
     if obj:
         error = {}
         for key in obj:
-            if key is 'id':
+            if key is 'id' or key is 'creation_date':
                 pass
             else:
                 if obj[key] is None or obj[key] is "":

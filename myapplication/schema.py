@@ -25,6 +25,8 @@ from core.extras import validate_fields
 # image upload
 from django.core.files.base import ContentFile
 import base64
+
+from django.utils.dateparse import parse_datetime
 '''
 NOTE: class name should not be the same as model
 '''
@@ -62,6 +64,7 @@ class EventsInput(graphene.InputObjectType):
     title = graphene.String()
     description = graphene.String()
     link = graphene.String()
+    creation_date = graphene.String()
     data_url = graphene.String() # holding data:image
     file_name = graphene.String() # holdile image file name
 
@@ -71,6 +74,7 @@ class EventsObject(graphene.ObjectType):
     title = graphene.String()
     description = graphene.String()
     link = graphene.String()
+    creation_date = graphene.String()
     data_url = graphene.String() # holding data:image
     file_name = graphene.String() # holdile image file name
 
@@ -83,10 +87,27 @@ class CreateUpdateEvent(graphene.Mutation):
 
     def mutate(self, info, event_data=None, image_data=None):
         if event_data.id is not None and len(list(event_data.keys())) > 1:
+            img_str = ''
+            img = None
+            if event_data["data_url"] is not '' or event_data["file_name"] is not None:
+                img_str = event_data["data_url"].split(";base64,")[1]
+                img = event_data["file_name"]
+
             event_data['id'] = from_global_id(event_data.id)[1]
+            event_data["creation_date"] = parse_datetime(event_data["creation_date"])
+
+            del event_data["file_name"]
+            del event_data["data_url"]
+
             validate_fields(event_data)
             event = Events(**event_data)
             event.save()
+
+            if img_str is not '' or img is not None:
+                Events.objects.get(id=from_global_id(event_data.id)[1]).image.save(
+                    img, ContentFile(base64.b64decode(img_str))
+                )
+
         elif event_data.id is not None and len(list(event_data.keys())) == 1:
             event_data['id'] = from_global_id(event_data.id)[1]
             event = Events.objects.get(id=event_data['id'])
