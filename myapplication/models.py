@@ -7,9 +7,10 @@ from .constants import (
     ROLE_CHOICES
 )
 
+from users.models import CustomUser
 
 class BasicInformation(models.Model):
-    user = models.OneToOneField(User, related_name='profile', on_delete=models.CASCADE, null=True)
+    # user = models.OneToOneField(User, related_name='profile', on_delete=models.CASCADE, null=True)
     image = models.ImageField(upload_to=get_images_upload_path, blank=True, null=True)
     role = models.CharField(max_length=100, blank=True, choices=ROLE_CHOICES, default='')
     birth_date = models.CharField(max_length=10, blank=True, default='')
@@ -22,7 +23,7 @@ class BasicInformation(models.Model):
 
 
 class Events(models.Model):
-    user = models.ForeignKey(User, related_name='events', on_delete=models.CASCADE, blank=True, null=True)
+    user = models.ForeignKey(CustomUser, related_name='events', on_delete=models.CASCADE, blank=True, null=True)
     image = models.ImageField(upload_to=get_events_upload_path, blank=True, null=True)
     title = models.CharField(max_length=50, blank=True, null=True, default="")
     description = models.CharField(max_length=400, blank=True, null=True, default="")

@@ -13,10 +13,10 @@ from .models import (
 )
 
 from .serializers import (
-    UserSerializer,
+    # UserSerializer,
     EventsSerializer,
-    LoginSerializer,
-    SignupSerializer
+    # LoginSerializer,
+    # SignupSerializer
 )
 from django.contrib.auth.models import User
 from api.utils import generate_jwt_token
@@ -48,17 +48,19 @@ import pytz
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 
+'''
 def jwt_response_payload_handler(token, uto_emailser=None, request=None):
     return {
         'token': token,
         'user': UserSerializer(user).data
     }
+'''
 
-
+'''
 class UserProfileViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-
+'''
 
 class EventsViewSet(viewsets.ModelViewSet):
     queryset = Events.objects.all()
@@ -112,7 +114,7 @@ def save_new_password(request):
     return Response({
         'success': True,
     }, status=status.HTTP_202_ACCEPTED)
-
+'''
 class LoginViewSet(views.APIView):
     serializer_class = LoginSerializer
     permission_classes = [
@@ -147,3 +149,4 @@ class SignupViewSet(CreateAPIView):
             'token': generate_jwt_token(user),
             'user': UserSerializer(user).data,
         })
+'''

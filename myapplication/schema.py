@@ -6,6 +6,8 @@ from .models import (
     BasicInformation,
     Events
 )
+# from users.models import CustomUser
+
 from .serializers import (
     EventsSerializer
 )
@@ -27,9 +29,35 @@ from django.core.files.base import ContentFile
 import base64
 
 from django.utils.dateparse import parse_datetime
+
+from graphql_auth.schema import UserQuery, MeQuery
+from graphql_auth import mutations
+
 '''
 NOTE: class name should not be the same as model
 '''
+
+
+class AuthMutation(graphene.ObjectType):
+    register = mutations.Register.Field()
+    verify_account = mutations.VerifyAccount.Field()
+    resend_activation_email = mutations.ResendActivationEmail.Field()
+    send_password_reset_email = mutations.SendPasswordResetEmail.Field()
+    password_reset = mutations.PasswordReset.Field()
+    password_change = mutations.PasswordChange.Field()
+    archive_account = mutations.ArchiveAccount.Field()
+    delete_account = mutations.DeleteAccount.Field()
+    update_account = mutations.UpdateAccount.Field()
+    send_secondary_email_activation = mutations.SendSecondaryEmailActivation.Field()
+    verify_secondary_email = mutations.VerifySecondaryEmail.Field()
+    swap_emails = mutations.SwapEmails.Field()
+
+    # django-graphql-jwt authentication
+    # with some extra features
+    token_auth = mutations.ObtainJSONWebToken.Field()
+    verify_token = mutations.VerifyToken.Field()
+    refresh_token = mutations.RefreshToken.Field()
+    revoke_token = mutations.RevokeToken.Field()
 
 
 class ExtendedConnection(graphene.Connection):
@@ -130,10 +158,10 @@ class CreateUpdateEvent(graphene.Mutation):
                 )
         return CreateUpdateEvent(event=event)
 
-class Mutation(graphene.ObjectType):
+class Mutation(AuthMutation, graphene.ObjectType):
     CreateUpdateEvent = CreateUpdateEvent.Field()
 
-class Query(graphene.ObjectType):
+class Query(UserQuery, MeQuery, graphene.ObjectType):
     all_events = DjangoFilterConnectionField(
         GraphEventsType,
         getid=graphene.ID(),

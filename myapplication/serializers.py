@@ -46,7 +46,7 @@ class EventsSerializer(serializers.ModelSerializer):
         model = Events
         fields = '__all__'
 
-
+'''
 class UserSerializer(serializers.ModelSerializer):
     profile = BasicInformationSerializer()
     # unit = UnitSerializer()
@@ -88,6 +88,7 @@ class UserSerializer(serializers.ModelSerializer):
            BasicInformation.objects.filter(id=instance.profile.id).update(**profile_data)
 
         return instance
+'''
 
 class LoginSerializer(serializers.Serializer):
     email = serializers.CharField()
@@ -117,7 +118,7 @@ class LoginSerializer(serializers.Serializer):
                 'password': 'Invalid authentication credentials.',
             })
 
-
+'''
 class SignupSerializer(UserSerializer):
     profile = BasicInformationSerializer()
 
@@ -152,3 +153,4 @@ class SignupSerializer(UserSerializer):
         user.set_password(validated_data['password'])
         user.save()
         return user
+'''
