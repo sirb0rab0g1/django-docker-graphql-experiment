@@ -42,9 +42,29 @@ INSTALLED_APPS = INSTALLED_APPS
 
 MIDDLEWARE = MIDDLEWARE
 
-ROOT_URLCONF = 'api.urls'
+GRAPHQL_JWT = GRAPHQL_JWT
 
-TEMPLATES = TEMPLATES
+AUTHENTICATION_BACKENDS = AUTHENTICATION_BACKENDS
+
+GRAPHENE = GRAPHENE
+
+GRAPHQL_AUTH = GRAPHQL_AUTH
+
+AUTH_USER_MODEL = 'users.CustomUser'
+
+EMAIL_BACKEND = EMAIL_BACKEND
+
+EMAIL_HOST = EMAIL_HOST
+
+EMAIL_USE_TLS = EMAIL_USE_TLS
+
+EMAIL_PORT = EMAIL_PORT
+
+EMAIL_HOST_USER = env('EMAIL_HOST_USER')
+
+EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
+
+ROOT_URLCONF = 'api.urls'
 
 WSGI_APPLICATION = 'api.wsgi.application'
 
@@ -85,6 +105,24 @@ STATICFILES_DIRS = [
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [
+            base(BASE_DIR, "templates")
+        ],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ],
+        },
+    },
+]
+
 ASGI_APPLICATION = "api.routing.application"
 
 REDIS_URL = env.str("REDIS_URL", default="redis://redis:6379")  # noqa
@@ -123,7 +161,7 @@ CELERY_IMPORTS=('core.tasks', )
 
 REST_FRAMEWORK = REST_FRAMEWORK
 
-JWT_AUTH = JWT_AUTH
+# JWT_AUTH = JWT_AUTH
 
 CORS_ORIGIN_WHITELIST = [
     'http://199.68.188.231:8000',

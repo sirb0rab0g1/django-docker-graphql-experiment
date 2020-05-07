@@ -30,6 +30,8 @@ fpdf = "*"
 xlwt = "*"
 openpyxl = "*"
 xlsxwriter = "*"
+django-graphql-auth = "*"
+django-graphql-jwt = "==0.3.0"
 
 [dev-packages]
 
