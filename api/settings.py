@@ -54,9 +54,17 @@ AUTH_USER_MODEL = 'users.CustomUser'
 
 EMAIL_BACKEND = EMAIL_BACKEND
 
-ROOT_URLCONF = 'api.urls'
+EMAIL_HOST = EMAIL_HOST
 
-TEMPLATES = TEMPLATES
+EMAIL_USE_TLS = EMAIL_USE_TLS
+
+EMAIL_PORT = EMAIL_PORT
+
+EMAIL_HOST_USER = env('EMAIL_HOST_USER')
+
+EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
+
+ROOT_URLCONF = 'api.urls'
 
 WSGI_APPLICATION = 'api.wsgi.application'
 
@@ -96,6 +104,24 @@ STATICFILES_DIRS = [
 ]
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [
+            base(BASE_DIR, "templates")
+        ],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ],
+        },
+    },
+]
 
 ASGI_APPLICATION = "api.routing.application"
 

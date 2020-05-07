@@ -1,5 +1,7 @@
 from .environment import *
+import environ
 
+env = environ.Env()
 
 """
     NOTE: do not forget to migrate after changing some config from JWT and installed apps
@@ -69,7 +71,6 @@ GRAPHENE = {
 }
 
 GRAPHQL_JWT = {
-    #...
     "JWT_ALLOW_ANY_CLASSES": [
         "graphql_auth.mutations.Register",
         "graphql_auth.mutations.VerifyAccount",
@@ -99,6 +100,7 @@ GRAPHQL_JWT = {
 
 GRAPHQL_AUTH = {
     'LOGIN_ALLOWED_FIELDS': ['email', 'username'],
+    'ALLOW_LOGIN_NOT_VERIFIED': False,
     # ...
 }
 
@@ -132,20 +134,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-TEMPLATES = [
-    {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
-            ],
-        },
-    },
-]
-
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_USE_TLS = True
+EMAIL_PORT = 587
