@@ -1,0 +1,116 @@
+# https://django-graphql-auth.readthedocs.io/en/latest/api/
+
+# get all user
+{
+  users {
+    edges {
+      node {
+        id,
+        email,
+        username,
+        first_name,
+        last_name,
+        archived,
+        verified,
+        email,
+        secondary_email
+      }
+    }
+  }
+}
+
+# registration
+mutation {
+  register(
+    email: "kentoyfueconcillo@gmail.com",
+    username: "admin",
+    password1: "Pasmo.123",
+    password2: "Pasmo.123",
+    first_name: "kent",
+    last_name: "dddd"
+  ) {
+    success,
+    errors,
+    # token
+  }
+}
+
+# token send from email
+# will set verify=True
+mutation {
+  verify_account(token: "eyJ1c2VybmFtZSI6ImFkbWluIiwiYWN0aW9uIjoiYWN0aXZhdGlvbiJ9:1jWk8Q:uE4J7nfcqwS5tF2u7knBKbjiDZw") {
+    success,
+    errors
+  }
+}
+
+# login or ObtainJSONWebToken # can use username or email field
+token_auth(email: "kentoyfueconcillo@gmail.com", password: "supersecretpassword") # error not verified
+token_auth(email: "kentoyfueconcillo4@gmail.com", password: "Pasmo.123") # success
+mutation {
+  token_auth(email: "kentoyfueconcillo@gmail.com", password: "Pasmo.123") {
+    success,
+    errors,
+    unarchiving,
+    token,
+    unarchiving,
+    user {
+      id,
+      username,
+      first_name,
+      last_name,
+      verified
+    }
+  }
+}
+
+# verify token user.status.verified
+mutation {
+  verify_token(token: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VybmFtZSI6ImtlbnRveTQiLCJleHAiOjE1ODg4Mzk5NzUsIm9yaWdJYXQiOjE1ODg4Mzk2NzV9.d_86WDywmKjA5ut0i7DPVImXBojyVQljHTZR4A6Rjao") {
+    success,
+    errors
+  }
+}
+
+
+# password reset
+mutation {
+  password_reset(
+    token: "eyJ1c2VybmFtZSI6ImtlbnRveTQiLCJhY3Rpb24iOiJwYXNzd29yZF9yZXNldCJ9:1jWbsj:WStxqcCfT10SJTxRxDy5YkeIvRE",
+    new_password1: "Pasmo.12345",
+    new_password2: "Pasmo.12345"
+  ) {
+    success,
+    errors
+  }
+}
+
+# send password reset email
+mutation {
+  send_password_reset_email(
+    email: "kentoyfueconcillo4@gmail.com"
+  ) {
+    success,
+    errors
+  }
+}
+
+# you need to login in django admin or localhost:8000/admin
+# me query
+query {
+  me {
+    username,
+    verified
+  }
+}
+
+#update account
+mutation {
+  update_account(
+    first_name: "igits",
+    last_name: "igits"
+  ) {
+    success,
+    errors
+  }
+}

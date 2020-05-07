@@ -107,6 +107,7 @@ GRAPHQL_AUTH = {
         "email": "String",
         "username": "String",
     },
+    'UPDATE_MUTATION_FIELDS': ['first_name', 'last_name']
     # ...
 }
 
