@@ -101,6 +101,12 @@ GRAPHQL_JWT = {
 GRAPHQL_AUTH = {
     'LOGIN_ALLOWED_FIELDS': ['email', 'username'],
     'ALLOW_LOGIN_NOT_VERIFIED': False,
+    'REGISTER_MUTATION_FIELDS': {
+        "first_name": "String",
+        "last_name": "String",
+        "email": "String",
+        "username": "String",
+    },
     # ...
 }
 
