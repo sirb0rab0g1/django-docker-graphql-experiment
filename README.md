@@ -1,8 +1,8 @@
-# Drf-Docker-PipEnv-Nginx-Daphne-Redis
+# Django / docker x docker-compose / graphql - experiment
 
 ## Prerequisites
 
-1. Must have [Docker](https://www.docker.com/get-started) installed.
+1. Must have [Docker](https://www.docker.com/get-started) and [Docker Compose](https://docs.docker.com/compose/) installed.
 
 ## Pre-setup
 
@@ -22,22 +22,35 @@
 # How to
 
 ## After building your local development you must create a superuser account
-`make superuser` required because of JWT authentication
+`http://localhost:8000/api/admin/graphiql`
+i invole [Mutations](https://docs.graphene-python.org/projects/django/en/latest/mutations/) from [Graphene Django](https://docs.graphene-python.org/projects/django/en/latest/)
+`mutation {
+  register(
+    email: "kentoyfueconcillo@gmail.com",
+    username: "admin",
+    password1: "Pasmo.123",
+    password2: "Pasmo.123",
+    first_name: "kent",
+    last_name: "dddd"
+  ) {
+    success,
+    errors,
+    # token
+  }
+}
+`
 
 ## Then login in django admin
-[http://localhost:8000/api/admin/](http://localhost:8000/api/admin)
-
-## After a successful login navigate to
-[http://localhost:8000/api/basic/information/](http://localhost:8000/api/basic/information/)
+[http://localhost:8000/admin](http://localhost:8000/admin)
 
 ## To test a graphql by graphqil interface navigate to 
-[http://localhost:8000/api/basic/graphiql](http://localhost:8000/api/basic/graphiql)
+[http://localhost:8000/api/admin/graphiql](http://localhost:8000/api/admin/graphiql)
 
 ## Use pg admin
 1. Navigate to <IP>:5050
 2. Use this ff credentials
    - Email: kentoyfueconcillo@gmail.com
-   - Password: 123123
+   - Password: ismellsomethingfishy
 3. Click add server 
    - General > Name: put name you want
    - Connection
@@ -45,7 +58,7 @@
      - Port: 5432
      - maintenance db: postgres
      - username: postgres
-     - password: postgres
+     - password: ismellsomethingfishy
  4. The database will be created
  5. Navigate to this path.
      - your name inputed > databases > postgres > schemas > tables
@@ -86,8 +99,10 @@ As the backend
 ### [Annoying](https://github.com/skorokithakis/django-annoying) <br />
 This django application eliminates certain annoyances in the Django framework.
 
-### [JWT Json Web Token](https://github.com/GetBlimp/django-rest-framework-jwt) <br />
-Unlike some more typical uses of JWTs, this module only generates authentication tokens that will verify the user who is requesting one of your DRF protected API resources.
+### [Django Graphql Auth](https://github.com/PedroBern/django-graphql-auth) <br />
+Abstract all the basic logic of handling user accounts out of your app, so you don't need to think about it and can get up and running faster.
+
+No lock-in. When you are ready to implement your own code or this package is not up to your expectations , it's easy to extend or switch to your implementation.
 
 ### [Graphql-Python/Graphene-Django](http://docs.graphene-python.org/projects/django/en/latest/) <br />
 Primary focus here is to give a good understanding of how to connect models from Django ORM to graphene object types.
