@@ -22,8 +22,8 @@
 # How to
 
 ## After building your local development you must create a superuser account
-`http://localhost:8000/api/admin/graphiql`
-i invole [Mutations](https://docs.graphene-python.org/projects/django/en/latest/mutations/) from [Graphene Django](https://docs.graphene-python.org/projects/django/en/latest/)
+`http://localhost:8000/api/admin/graphiql` <br />
+i invole [Mutations](https://docs.graphene-python.org/projects/django/en/latest/mutations/) from [Graphene Django](https://docs.graphene-python.org/projects/django/en/latest/)<br />
 `mutation {
   register(
     email: "kentoyfueconcillo@gmail.com",
